@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}상품 상세보기{% endblock %}
+{% block content %}
+<div class="detail-card">
+  <h2>{{ product.title }}</h2>
+
+  {% if product.image %}
+    <img src="{{ url_for('uploaded_file', filename=product.image) }}" alt="상품 이미지" style="max-width: 300px; border-radius: 12px; margin-bottom: 24px;">
+  {% else %}
+    <p>📷 이미지가 없습니다.</p>
+  {% endif %}
+
+  <p>{{ product.description }}</p>
+  <p>가격: 💰 {{ product.price }}</p>
+  <p>판매자: {{ seller.username if seller else '알 수 없음' }}</p>
+
+  {% if user and user.id != product.seller_id %}
+  <div class="button-row">
+    <a href="{{ url_for('private_chat', target_id=product.seller_id) }}" class="btn btn-info">1:1 채팅</a>
+    <form action="{{ url_for('pay_to_seller', product_id=product.id) }}" method="POST">
+      <!-- ✅ CSRF 토큰 추가 -->
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="btn btn-warning" onclick="return confirm('{{ product.price }}원을 지불하시겠습니까?');">구매하기</button>
+    </form>
+  </div>
+  {% endif %}
+
+  {% if user and product.seller_id == user.id %}
+  <div class="button-row">
+    <a href="{{ url_for('edit_product', product_id=product.id) }}" class="btn btn-primary">수정</a>
+    <form action="{{ url_for('delete_product', product_id=product.id) }}" method="POST">
+      <!-- ✅ CSRF 토큰 추가 -->
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="btn btn-danger" onclick="return confirm('정말 삭제하시겠습니까?');">삭제</button>
+    </form>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
