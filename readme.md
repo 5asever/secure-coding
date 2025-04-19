@@ -1,29 +1,42 @@
 # Secure Coding
 
-## Tiny Secondhand Shopping Platform.
+## Tiny Secondhand Shopping Platform
 
-You should add some functions and complete the security requirements.
+이 리포지토리는 Flask 기반의 중고거래 플랫폼 예제입니다.
 
-## requirements
+---
 
-if you don't have a miniconda(or anaconda), you can install it on this url. - https://docs.anaconda.com/free/miniconda/index.html
+## 📋 사전 준비
 
-```
-git clone https://github.com/ugonfor/secure-coding
-conda env create -f enviroments.yaml
-```
+- Python 3.8 이상  
+- MySQL
+- (선택) 외부 접속 테스트를 위한 ngrok
 
-## usage
+---
 
-run the server process.
+## 가상 환경 설정 (venv)
 
-```
+1. 리포지토리 클론  
+git clone https://github.com/ugonfor/secure-coding.git
+cd secure-coding
+
+2. 가상 환경 생성 및 활성화
+python3 -m venv venv
+(Linux/macOS) source venv/bin/activate
+(Windows) venv\Scripts\activate.bat
+
+3. 의존성 패키지 설치
+pip install --upgrade pip
+pip install -r requirements.txt
+
+4. 실행
 python app.py
-```
 
-if you want to test on external machine, you can utilize the ngrok to forwarding the url.
-```
-# optional
+
+(선택)
+# ngrok 설치 (Snap)
 sudo snap install ngrok
+
+# HTTP 5000 포트 공개
 ngrok http 5000
-```
+
