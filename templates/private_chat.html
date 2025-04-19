@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+{% block title %}1:1 채팅 - {{ target_user.username }}{% endblock %}
+
+{% block content %}
+<style>
+.chat-container {
+    max-width: 700px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+.chat-header {
+    background: #67b86e;
+    color: white;
+    padding: 15px 20px;
+    border-bottom: 1px solid #eaeaea;
+}
+.chat-header h2 {
+    margin: 0;
+    font-size: 1.2rem;
+}
+.chat-messages {
+    padding: 20px;
+    height: 400px;
+    overflow-y: auto;
+}
+.message {
+    margin-bottom: 15px;
+    display: flex;
+}
+.message-content {
+    max-width: 70%;
+    padding: 10px 15px;
+    border-radius: 18px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+.message-sender {
+    margin-bottom: 5px;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+.message-text {
+    line-height: 1.4;
+}
+.message-mine {
+    justify-content: flex-end;
+}
+.message-mine .message-content {
+    background: #e3f2fd;
+}
+.message-other {
+    justify-content: flex-start;
+}
+.message-other .message-content {
+    background: #f5f5f5;
+}
+.chat-form {
+    padding: 15px;
+    border-top: 1px solid #eaeaea;
+    display: flex;
+}
+.chat-input {
+    flex: 1;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    outline: none;
+}
+.chat-submit {
+    margin-left: 10px;
+    padding: 12px 20px;
+    background: #67b86e;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+}
+.chat-submit:hover {
+    background: #4a9c3b;
+}
+</style>
+
+<div class="chat-container">
+    <div class="chat-header">
+        <h2>{{ target_user.username }}님과의 대화</h2>
+    </div>
+
+    <div class="chat-messages" id="messageArea">
+        <!-- 메시지는 소켓으로 동적 추가됨 -->
+    </div>
+
+    <form class="chat-form" id="chatForm">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="text" class="chat-input" id="message" placeholder="메시지를 입력하세요..." autocomplete="off">
+        <button type="submit" class="chat-submit">전송</button>
+    </form>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // ✅ withCredentials: true 설정 필요
+        const socket = io({ withCredentials: true });
+
+        const messageArea = document.getElementById('messageArea');
+        const chatForm = document.getElementById('chatForm');
+        const messageInput = document.getElementById('message');
+
+        function scrollToBottom() {
+            messageArea.scrollTop = messageArea.scrollHeight;
+        }
+
+        socket.emit('join', {
+            room: '{{ room }}',
+            username: '{{ current_user.username }}'
+        });
+
+        chatForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            if (messageInput.value.trim() !== '') {
+                const message = messageInput.value;
+
+                socket.emit('private_message', {
+                    room: '{{ room }}',
+                    username: '{{ current_user.username }}',
+                    message: message
+                });
+
+                messageInput.value = '';
+            }
+        });
+
+        socket.on('private_message', function(data) {
+            const isMine = data.username === '{{ current_user.username }}';
+            const messageDiv = document.createElement('div');
+            messageDiv.className = isMine ? 'message message-mine' : 'message message-other';
+
+            messageDiv.innerHTML = `
+                <div class="message-content">
+                    <div class="message-sender">${data.username}</div>
+                    <div class="message-text">${data.message}</div>
+                </div>
+            `;
+
+            messageArea.appendChild(messageDiv);
+            scrollToBottom();
+        });
+
+        scrollToBottom();
+    });
+</script>
+{% endblock %}

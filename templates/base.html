@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>{% block title %}오이마켓{% endblock %}</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+
+  <style>
+    :root {
+      --main-color: #5cbf7c;
+      --accent-color: #8ee6a0;
+      --background-color: #f3fdf6;
+      --text-color: #222;
+      --shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    }
+
+    body {
+      background-color: var(--background-color);
+      font-family: "Apple SD Gothic Neo", sans-serif;
+      margin: 0;
+      padding: 0;
+      color: var(--text-color);
+    }
+
+    nav {
+      background-color: var(--main-color);
+      padding: 16px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: var(--shadow);
+    }
+
+    nav a {
+      color: white;
+      text-decoration: none;
+      margin-right: 20px;
+      font-weight: 600;
+      font-size: 1rem;
+      transition: opacity 0.2s ease;
+    }
+
+    nav a:hover {
+      opacity: 0.8;
+    }
+
+    .container {
+      max-width: 960px;
+      margin: 50px auto;
+      background-color: #fff;
+      padding: 40px;
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+    }
+
+    h1, h2, h3 {
+      color: var(--main-color);
+      font-weight: bold;
+    }
+
+    input, textarea, button, select {
+      font-size: 1rem;
+      padding: 12px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-sizing: border-box;
+    }
+
+    button {
+      background-color: var(--main-color);
+      color: white;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 20px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    button:hover {
+      background-color: #4ea768;
+    }
+
+    .flash {
+      background-color: #dfffe1;
+      border: 1px solid #b5e4c2;
+      color: #2d7c47;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+
+    ul { list-style: none; padding: 0; }
+    li { padding: 10px 0; border-bottom: 1px solid #eee; }
+
+    .btn {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      padding: 10px 18px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      text-align: center;
+      color: white;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .btn-primary   { background-color: #67b86e; }
+    .btn-primary:hover   { background-color: #4a9c3b; }
+
+    .btn-danger    { background-color: #e74c3c; }
+    .btn-danger:hover    { background-color: #c0392b; }
+
+    .btn-warning   { background-color: #f39c12; }
+    .btn-warning:hover   { background-color: #e67e22; }
+
+    .btn-info      { background-color: #5bc0de; }
+    .btn-info:hover      { background-color: #31b0d5; }
+
+    footer {
+      text-align: center;
+      margin-top: 60px;
+      padding: 20px 0;
+      color: #aaa;
+      font-size: 0.85rem;
+    }
+
+    a.product-link {
+      color: #388e3c;
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    a.product-link:hover {
+      text-decoration: underline;
+    }
+
+    a.link-button {
+      display: inline-block;
+      background-color: var(--main-color);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: bold;
+      text-decoration: none;
+      transition: background-color 0.2s;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    a.link-button:hover {
+      background-color: #4e8c52;
+    }
+  </style>
+
+  {% block styles %}{% endblock %}
+</head>
+<body>
+  <nav>
+    <div>
+      <a href="{{ url_for('index') }}">🥒 오이마켓</a>
+      {% if session.get('user_id') %}
+        <a href="{{ url_for('dashboard') }}">대시보드</a>
+        <a href="{{ url_for('profile') }}">프로필</a>
+        <a href="{{ url_for('chat_list') }}">1대1 채팅</a>
+        <a href="{{ url_for('report') }}">신고</a>
+        <a href="{{ url_for('wallet') }}">💰 지갑</a>
+        {% if session.get('username') == 'admin' %}
+          <a href="{{ url_for('admin_dashboard') }}">👑 관리자</a>
+          <a href="{{ url_for('admin_reports') }}">📋 신고 내역</a>
+        {% endif %}
+      {% endif %}
+    </div>
+    <div>
+      {% if session.get('user_id') %}
+        <a href="{{ url_for('logout') }}">로그아웃</a>
+      {% else %}
+        <a href="{{ url_for('login') }}">로그인</a>
+        <a href="{{ url_for('register') }}">회원가입</a>
+      {% endif %}
+    </div>
+  </nav>
+
+  <div class="container">
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul>
+          {% for message in messages %}
+            <li class="flash">{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+  </div>
+
+  <footer>
+    Ⓣ 2025 오이마켓 | 동네에서 중고 거래는 오이처럼 신선하게
+  </footer>
+</body>
+</html>

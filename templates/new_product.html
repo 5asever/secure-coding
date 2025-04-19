@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}새 상품 등록{% endblock %}
+{% block content %}
+
+<h2 style="color: #2e7d32; font-weight: bold; margin-bottom: 24px;">🛍️ 새 상품 등록</h2>
+
+<style>
+  .product-form {
+    max-width: 600px;
+    margin: 0 auto;
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+  }
+
+  .product-form label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 8px;
+    margin-top: 20px;
+  }
+
+  .product-form input[type="text"],
+  .product-form input[type="number"],
+  .product-form textarea,
+  .product-form input[type="file"] {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+  }
+
+  .product-form textarea {
+    height: 100px;
+    resize: vertical;
+  }
+
+  .product-form button {
+    margin-top: 24px;
+    padding: 12px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+
+  .product-form button:hover {
+    background-color: #388e3c;
+  }
+</style>
+
+<form class="product-form" method="POST" enctype="multipart/form-data">
+  
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+  <label for="title">제목</label>
+  <input type="text" id="title" name="title" required>
+
+  <label for="description">설명</label>
+  <textarea id="description" name="description" required></textarea>
+
+  <label for="price">가격</label>
+  <input type="number" id="price" name="price" min="0" required>
+
+  <label for="image">상품 이미지</label>
+  <input type="file" id="image" name="image" accept="image/*">
+
+  <button type="submit">등록하기</button>
+</form>
+
+{% endblock %}

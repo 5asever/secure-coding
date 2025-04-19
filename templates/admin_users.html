@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+{% block title %}관리자 - 유저 차단/휴면/삭제{% endblock %}
+{% block content %}
+<div class="admin-card">
+  <h2 class="admin-title">👑 관리자 - 유저 차단 / 휴면 / 삭제</h2>
+
+  <div class="admin-table">
+    <div class="admin-table-row admin-table-header">
+      <div>아이디</div>
+      <div>유저명</div>
+      <div>소개</div>
+      <div>차단 여부</div>
+      <div>정지 기간 & 상품 삭제</div>
+      <div>조치</div>
+    </div>
+
+    {% for user in users %}
+    <div class="admin-table-row">
+      <div>{{ user.id }}</div>
+      <div>{{ user.username }}</div>
+      <div>{{ user.bio or '—' }}</div>
+      <div>
+        {% if user.is_blocked %}
+          <span class="status-blocked">차단됨{% if user.suspended_until %} ({{ user.suspended_until }}){% endif %}</span>
+        {% else %}
+          <span class="status-active">정상</span>
+        {% endif %}
+      </div>
+      <div>
+        <form method="POST" action="{{ url_for('admin_dashboard') }}" class="control-form">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <input type="hidden" name="target_id" value="{{ user.id }}">
+          <div class="form-inline">
+            <select name="suspend_period" class="control-select">
+              <option value="">기간 선택</option>
+              <option value="1m">1개월</option>
+              <option value="3m">3개월</option>
+              <option value="6m">6개월</option>
+              <option value="1y">1년</option>
+              <option value="3y">3년</option>
+            </select>
+            <label class="control-checkbox">
+              <input type="checkbox" name="delete_products" value="yes"> 상품 삭제
+            </label>
+          </div>
+          {% if user.is_blocked %}
+            <button type="submit" name="action" value="unblock" class="btn btn-warning">차단 해제</button>
+          {% else %}
+            <button type="submit" name="action" value="block" class="btn btn-info">차단하기</button>
+          {% endif %}
+        </form>
+      </div>
+      <div class="action-buttons">
+        <form method="POST" action="{{ url_for('delete_user') }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <input type="hidden" name="target_id" value="{{ user.id }}">
+          <button type="submit" class="btn btn-danger" onclick="return confirm('정말 삭제하시겠습니까?');">계정 삭제</button>
+        </form>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
+
+{% block styles %}
+<style>
+  .admin-card {
+    background: #fff;
+    padding: 32px;
+    border-radius: 16px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+    margin: 50px auto;
+    max-width: 960px;
+  }
+
+  .admin-title {
+    color: var(--main-color);
+    font-size: 1.6rem;
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: 24px;
+  }
+
+  .admin-table {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .admin-table-row {
+    display: grid;
+    grid-template-columns: 2fr 1.2fr 1.4fr 1fr 2.5fr 2fr;
+    gap: 12px;
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    align-items: center;
+    font-size: 0.95rem;
+  }
+
+  .admin-table-header {
+    font-weight: bold;
+    background: none;
+    box-shadow: none;
+    padding: 0 4px 4px;
+    color: #444;
+    border-bottom: 1px solid #ddd;
+  }
+
+  .status-active {
+    color: #28a745;
+    font-weight: 600;
+  }
+
+  .status-blocked {
+    color: #e74c3c;
+    font-weight: 600;
+  }
+
+  .control-form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .form-inline {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .control-select {
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 0.9rem;
+  }
+
+  .control-checkbox {
+    font-size: 0.85rem;
+  }
+
+  .action-buttons {
+    display: flex;
+    gap: 8px;
+  }
+
+  .btn {
+    padding: 8px 14px;
+    font-size: 0.9rem;
+    border-radius: 6px;
+    font-weight: 600;
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .btn-info {
+    background-color: #5bc0de;
+  }
+  .btn-info:hover {
+    background-color: #31b0d5;
+  }
+
+  .btn-warning {
+    background-color: #f0ad4e;
+  }
+  .btn-warning:hover {
+    background-color: #ec971f;
+  }
+
+  .btn-danger {
+    background-color: #e74c3c;
+  }
+  .btn-danger:hover {
+    background-color: #c0392b;
+  }
+</style>
+{% endblock %}
