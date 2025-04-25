@@ -37,7 +37,7 @@ app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)
 
 # SQLAlchemy 설정
 basedir = os.path.abspath(os.path.dirname(__file__))
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://market_user:5han5han55#@localhost/market_db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///market.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # SQLAlchemy 객체 생성
